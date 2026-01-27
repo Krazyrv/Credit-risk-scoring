@@ -38,13 +38,22 @@ def load_data():
     raise FileNotFoundError("Application data not found. Run data_generator.py first.")
 
 
-def engineer_features(df: pd.DataFrame) -> Tuple[pd.DataFrame, dict]:
+def engineer_features(df: pd.DataFrame, verbose = False) -> Tuple[pd.DataFrame, dict]:
     """Engineer features for credit scoring."""
     print("🔧 Engineering features...")
     
     df = df.copy()
     encoders = {}
-    
+    if verbose:
+        print(f"🔧 Feature Compute: ")
+        print(f"- loan_to_income = % of loaning amount to income ")
+        print(f"- payment_to_income = % payment to income per month ")
+        print(f"- income_employment = % payment to income per month ")
+        print(f"- credit_per_line = income * log(1 + employment_length)")
+        print(f"- age_group = bin(age_group)")
+        print(f"- income_bracket = bin(income_group)")
+
+
     # Ratio features
     df['loan_to_income'] = df['loan_amount'] / df['income']
     df['payment_to_income'] = (df['loan_amount'] / 60) / (df['income'] / 12)  # Est monthly payment
