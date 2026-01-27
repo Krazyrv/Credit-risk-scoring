@@ -143,7 +143,7 @@ Where:
 ## Project Structure
 
 ```
-11-credit-risk-scoring/
+Credit-risk-scoring/
 ├── data/
 │   ├── raw/                    # Original applications
 │   ├── processed/              # Feature-engineered data
