@@ -227,12 +227,12 @@ def main():
     # Save files
     project_root = Path(__file__).parent.parent.parent
     
-    for dir_name in ['01-raw', '01-sample']:
+    for dir_name in ['01-raw', '00-sample']:
         data_dir = project_root / 'data' / dir_name
         data_dir.mkdir(parents=True, exist_ok=True)
         df.to_csv(data_dir / 'applications.csv', index=False)
     
-    print(f"\n💾 Saved data to data/raw/ and data/sample/")
+    print(f"\n💾 Saved data to data/01-raw/ and data/00-sample/")
     print("\n✅ Data generation complete!")
     
     return df
