@@ -22,46 +22,52 @@ HOME_OWNERSHIP = ['RENT', 'OWN', 'MORTGAGE']
 def generate_applicant_profile():
     """Generate a single applicant profile."""
     
-    # Age (skewed towards 25-55)
+    # Age (skewed towards 25-55, clip at 21-75)
     age = int(np.clip(np.random.normal(38, 12), 21, 75))
     
+    # Base-income (log-normal distribution)
+    base_income = np.random.lognormal(mean=10.8, sigma=0.5)                                 #  With mean = e^10.8 => ~$49,000 median & spread = 0.5
+
+    # Piecewise age factor
+    age_factor = 1 + (age - 25) * 0.01 if age < 50 else 1 + 0.25 - (age - 50) * 0.01        # Peaks at age 50
     # Income (log-normal, correlated with age)
-    base_income = np.random.lognormal(mean=10.8, sigma=0.5)
-    age_factor = 1 + (age - 25) * 0.01 if age < 50 else 1 + 0.25 - (age - 50) * 0.01
-    income = int(np.clip(base_income * age_factor, 20000, 500000))
+    income = int(np.clip(base_income * age_factor, 20000, 500000))                          # Clip income between $20k and $500k
     
     # Employment length (correlated with age)
-    max_emp = min(age - 18, 40)
-    employment_length = np.random.randint(0, max(1, max_emp))
+    max_emp = min(age - 18, 40)                                                             # Max employment length cannot exceed age-18 or 40 years
+    employment_length = np.random.randint(0, max(1, max_emp))   
     
     # Credit history length (correlated with age)
-    max_history = age - 18
+    max_history = age - 18                                                                  # Assume credit history starts at age 18
     credit_history_length = np.random.randint(0, max(1, max_history))
     
     # Number of credit lines (correlated with history)
-    num_credit_lines = int(np.clip(np.random.poisson(3 + credit_history_length * 0.3), 1, 20))
+    num_credit_lines = int(np.clip(
+                        np.random.poisson(3 + credit_history_length * 0.3),                 # Discrete distribution, 
+                        1, 20))                                                             # Min 1, max 20, 
     
-    # Utilization rate (beta distribution)
-    utilization_rate = round(np.random.beta(2, 5) * 100, 1)
+    # Utilization rate (beta distribution to skew towards lower rates)
+    utilization_rate = round(np.random.beta(2, 5) * 100, 1)                                 # Most people have lower utilization
     
     # Loan amount (correlated with income)
     loan_amount = int(np.clip(
-        np.random.lognormal(mean=np.log(income * 0.3), sigma=0.5),
+        np.random.lognormal(mean=np.log(income * 0.3),  # ~30% of annual income
+                            sigma=0.5),
         1000, income * 2
     ))
     
     # Debt to income (partially random, partially based on loan)
-    existing_debt_ratio = np.random.beta(2, 5) * 0.5
-    new_payment_ratio = (loan_amount / 60) / (income / 12)  # Assume 60-month loan
+    existing_debt_ratio = np.random.beta(2, 5) * 0.5                                        # Existing DTI between 0 and ~50%
+    new_payment_ratio = (loan_amount / 60) / (income / 12)                                  # Assume 60-month loan
     debt_to_income = round(existing_debt_ratio + new_payment_ratio, 3)
-    
+
     # Home ownership (correlated with age and income)
     if age < 30 or income < 40000:
-        home_probs = [0.6, 0.1, 0.3]
+        home_probs = [0.6, 0.1, 0.3]    # Young/Low Income: More likely to rent
     elif income > 100000:
-        home_probs = [0.15, 0.25, 0.6]
+        home_probs = [0.15, 0.25, 0.6]  # High Income: More likely to own
     else:
-        home_probs = [0.35, 0.2, 0.45]
+        home_probs = [0.35, 0.2, 0.45]  # Average Profile: Balanced
     home_ownership = np.random.choice(HOME_OWNERSHIP, p=home_probs)
     
     # Loan purpose
@@ -162,21 +168,33 @@ def generate_applications(n: int = N_APPLICATIONS):
         # Calculate default probability
         default_prob = calculate_default_probability(profile)
         
-        # Generate number of delinquencies (correlated with default risk)
+        # Generate number of delinquencies with weighted probabilities (correlated with default risk)
         if default_prob > 0.3:
-            num_delinquencies = np.random.choice([0, 1, 2, 3, 4], p=[0.3, 0.3, 0.2, 0.15, 0.05])
+            num_delinquencies = np.random.choice([0, 1, 2, 3, 4], 
+                                                 p=[0.3, 0.3, 0.2, 0.15, 0.05])     # High risk
         elif default_prob > 0.15:
-            num_delinquencies = np.random.choice([0, 1, 2, 3], p=[0.5, 0.3, 0.15, 0.05])
+            num_delinquencies = np.random.choice([0, 1, 2, 3], 
+                                                 p=[0.5, 0.3, 0.15, 0.05])
         else:
-            num_delinquencies = np.random.choice([0, 1, 2], p=[0.8, 0.15, 0.05])
+            num_delinquencies = np.random.choice([0, 1, 2], 
+                                                 p=[0.8, 0.15, 0.05])
         
         # Delinquencies increase default probability
-        default_prob += num_delinquencies * 0.08
-        default_prob = np.clip(default_prob, 0.01, 0.95)
+        default_prob += num_delinquencies * 0.08                                    # Each delinquency adds 8% to default prob
+        default_prob = np.clip(default_prob, 0.01, 0.95)                            # Cap at 95%
         
-        # Determine default
-        default = int(np.random.random() < default_prob)
-        
+        # Determine default with Bernoulli trial to add randomness
+        default = int(np.random.random() < default_prob)                            # Tend to be 1 if high risk, else 0
+        """
+        Examples:
+            Risk Category   default_prob    Random Roll     Result          Logic
+            Pristine        0.02            0.45            0        0.45 < 0.02 is False.
+            Near-Miss       0.10            0.081           1        0.08 < 0.10 is True. (Rare "Good" default)
+            High Risk       0.80            0.301           1        0.30 < 0.80 is True.
+            Lucky Break     0.80            0.920           0        0.92 < 0.80 is False. (Rare "Bad" success)
+        """
+
+
         application = {
             'application_id': f'APP{i+1:07d}',
             **profile,
@@ -207,9 +225,9 @@ def main():
     df = generate_applications()
     
     # Save files
-    project_root = Path(__file__).parent.parent
+    project_root = Path(__file__).parent.parent.parent
     
-    for dir_name in ['raw', 'sample']:
+    for dir_name in ['01-raw', '01-sample']:
         data_dir = project_root / 'data' / dir_name
         data_dir.mkdir(parents=True, exist_ok=True)
         df.to_csv(data_dir / 'applications.csv', index=False)

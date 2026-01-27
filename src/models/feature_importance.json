@@ -1,0 +1,19 @@
+{
+  "num_delinquencies": 0.28602386987504325,
+  "income_employment": 0.1276332412880077,
+  "age": 0.11367860612332262,
+  "income": 0.0765995701152966,
+  "utilization_rate": 0.06658471024729551,
+  "debt_to_income": 0.06072951523327655,
+  "credit_history_length": 0.05355257273504116,
+  "loan_amount": 0.04839099229167414,
+  "payment_to_income": 0.0389150296670396,
+  "loan_to_income": 0.03313239962116697,
+  "credit_per_line": 0.03220086572787942,
+  "home_ownership_encoded": 0.014243187290754182,
+  "num_credit_lines": 0.013114788970393107,
+  "employment_length": 0.013103747575304648,
+  "loan_purpose_encoded": 0.010754317215236623,
+  "age_group_encoded": 0.007618151432973626,
+  "income_bracket_encoded": 0.003724434590294356
+}

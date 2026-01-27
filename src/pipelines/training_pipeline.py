@@ -25,10 +25,11 @@ from sklearn.metrics import (
 
 def load_data():
     """Load application data."""
-    project_root = Path(__file__).parent.parent
+    project_root = Path(__file__).parent.parent.parent
     
-    for data_dir in ['raw', 'sample']:
+    for data_dir in ['01-raw', '00-sample']:
         data_path = project_root / 'data' / data_dir / 'applications.csv'
+        print(f"🔍 Checking for data in {data_path}...")
         if data_path.exists():
             df = pd.read_csv(data_path)
             print(f"📂 Loaded data from {data_path}")

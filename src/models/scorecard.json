@@ -1,0 +1,28 @@
+{
+  "score_range": {
+    "min": 300,
+    "max": 850
+  },
+  "risk_tiers": {
+    "Excellent": {
+      "min": 750,
+      "max": 850
+    },
+    "Good": {
+      "min": 700,
+      "max": 749
+    },
+    "Fair": {
+      "min": 650,
+      "max": 699
+    },
+    "Poor": {
+      "min": 550,
+      "max": 649
+    },
+    "Very Poor": {
+      "min": 300,
+      "max": 549
+    }
+  }
+}
