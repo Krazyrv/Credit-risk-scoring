@@ -240,12 +240,13 @@ def generate_all_plots():
     """Generate all visualization plots."""
     print("\n📊 Generating visualizations...")
     
-    project_root = Path(__file__).parent.parent
+    project_root = Path(__file__).parent.parent#.parent
+    # project_root = Path(__file__).parent.parent
     output_dir = project_root / 'docs' / 'img'
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+    print(f"Opening dir: {(project_root / 'data' / '01-raw' / 'applications.csv')}")
     # Load data
-    df = pd.read_csv(project_root / 'data' / 'raw' / 'applications.csv')
+    df = pd.read_csv(project_root / 'data' / '01-raw' / 'applications.csv')
     
     # Load metrics
     model_dir = project_root / 'models'

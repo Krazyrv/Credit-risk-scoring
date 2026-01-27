@@ -25,7 +25,7 @@ from sklearn.metrics import (
 
 def load_data():
     """Load application data."""
-    project_root = Path(__file__).parent.parent.parent
+    project_root = Path(__file__).parent.parent#.parent
     
     for data_dir in ['01-raw', '00-sample']:
         data_path = project_root / 'data' / data_dir / 'applications.csv'
